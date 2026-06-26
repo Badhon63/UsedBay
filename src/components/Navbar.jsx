@@ -12,13 +12,20 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, isPending } = useSession();
   const user = session?.user;
-  console.log(user);
+
+  const getDashboardLink = () => {
+    if (!user) return null;
+    if (user.role === "seller") return "/dashboard/seller";
+    return "/dashboard/buyer";
+  };
 
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/products", label: "Products" },
     { href: "/categories", label: "Categories" },
-    { href: "/dashboard", label: "Dashboard" },
+    ...(getDashboardLink()
+      ? [{ href: getDashboardLink(), label: "Dashboard" }]
+      : []),
   ];
 
   const handleSignOut = async () => {

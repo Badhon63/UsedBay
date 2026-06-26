@@ -14,7 +14,7 @@ const Onboarding = () => {
     role: user?.role || "buyer",
     phone: user?.phone || "",
     location: user?.location || "",
-    image: user?.image || "",
+    image: "", // Remove user?.image || - start empty
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
