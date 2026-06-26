@@ -2,7 +2,39 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signUp } from "@/lib/auth-client";
+import { signIn, signUp } from "@/lib/auth-client";
+
+const GoogleIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    viewBox="0 0 16 16"
+  >
+    <g fill="none" fillRule="evenodd" clipRule="evenodd">
+      <path
+        fill="#f44336"
+        d="M7.209 1.061c.725-.081 1.154-.081 1.933 0a6.57 6.57 0 0 1 3.65 1.82a100 100 0 0 0-1.986 1.93q-1.876-1.59-4.188-.734q-1.696.78-2.362 2.528a78 78 0 0 1-2.148-1.658a.26.26 0 0 0-.16-.027q1.683-3.245 5.26-3.86"
+        opacity={0.987}
+      ></path>
+      <path
+        fill="#ffc107"
+        d="M1.946 4.92q.085-.013.161.027a78 78 0 0 0 2.148 1.658A7.6 7.6 0 0 0 4.04 7.99q.037.678.215 1.331L2 11.116Q.527 8.038 1.946 4.92"
+        opacity={0.997}
+      ></path>
+      <path
+        fill="#448aff"
+        d="M12.685 13.29a26 26 0 0 0-2.202-1.74q1.15-.812 1.396-2.228H8.122V6.713q3.25-.027 6.497.055q.616 3.345-1.423 6.032a7 7 0 0 1-.51.49"
+        opacity={0.999}
+      ></path>
+      <path
+        fill="#43a047"
+        d="M4.255 9.322q1.23 3.057 4.51 2.854a3.94 3.94 0 0 0 1.718-.626q1.148.812 2.202 1.74a6.62 6.62 0 0 1-4.027 1.684a6.4 6.4 0 0 1-1.02 0Q3.82 14.524 2 11.116z"
+        opacity={0.993}
+      ></path>
+    </g>
+  </svg>
+);
 
 const Register = () => {
   const router = useRouter();
@@ -10,6 +42,10 @@ const Register = () => {
     name: "",
     email: "",
     password: "",
+    phone: "",
+    image: "",
+    location: "",
+    role: "buyer",
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -18,6 +54,25 @@ const Register = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: "" });
+    }
+  };
+
+  const isValidImageUrl = (url) => {
+    if (!url) return true;
+    try {
+      const urlObj = new URL(url);
+      const validExtensions = [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif",
+        ".webp",
+        ".svg",
+      ];
+      const pathname = urlObj.pathname.toLowerCase();
+      return validExtensions.some((ext) => pathname.endsWith(ext));
+    } catch {
+      return false;
     }
   };
 
@@ -40,6 +95,18 @@ const Register = () => {
       newErrors.password = "Password must be at least 8 characters";
     }
 
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    }
+
+    if (!formData.location.trim()) {
+      newErrors.location = "Location is required";
+    }
+
+    if (formData.image && !isValidImageUrl(formData.image)) {
+      newErrors.image = "Please enter a valid image URL";
+    }
+
     return newErrors;
   };
 
@@ -59,6 +126,11 @@ const Register = () => {
         email: formData.email,
         password: formData.password,
         name: formData.name,
+        role: formData.role,
+        phone: formData.phone,
+        image: formData.image || null,
+        location: formData.location,
+        status: "active",
       },
       {
         onSuccess: () => {
@@ -83,6 +155,12 @@ const Register = () => {
     setLoading(false);
   };
 
+  const googleRegister = async () => {
+    const data = await signIn.social({
+      provider: "google",
+    });
+  };
+
   return (
     <div className="flex py-10 items-center justify-center bg-gray-50">
       <form
@@ -101,6 +179,32 @@ const Register = () => {
             {errors.form}
           </div>
         )}
+
+        <div>
+          <label className="block text-sm font-medium mb-2">I want to</label>
+          <div className="grid grid-cols-2 gap-3">
+            {["buyer", "seller"].map((role) => (
+              <label
+                key={role}
+                className={`flex items-center justify-center gap-2 border rounded-md px-3 py-2 text-sm font-medium cursor-pointer transition-colors duration-100 ${
+                  formData.role === role
+                    ? "border-teal-600 bg-teal-50 text-teal-600"
+                    : "border-gray-300 text-gray-600 hover:border-teal-400"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value={role}
+                  checked={formData.role === role}
+                  onChange={handleChange}
+                  className="sr-only"
+                />
+                {role === "buyer" ? "Buy items" : "Sell items"}
+              </label>
+            ))}
+          </div>
+        </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">Full Name</label>
@@ -153,12 +257,83 @@ const Register = () => {
           )}
         </div>
 
+        <div>
+          <label className="block text-sm font-medium mb-1">Phone</label>
+          <input
+            type="text"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 duration-100 ${
+              errors.phone ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="+880 1234-567890"
+          />
+          {errors.phone && (
+            <p className="text-xs text-red-600 mt-1">{errors.phone}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Location</label>
+          <input
+            type="text"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+            className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 duration-100 ${
+              errors.location ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="City, Country"
+          />
+          {errors.location && (
+            <p className="text-xs text-red-600 mt-1">{errors.location}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Photo URL <span className="text-gray-500 text-xs">(optional)</span>
+          </label>
+          <input
+            type="text"
+            name="image"
+            value={formData.image}
+            onChange={handleChange}
+            className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 duration-100 ${
+              errors.image ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="https://example.com/photo.jpg"
+          />
+          {errors.image && (
+            <p className="text-xs text-red-600 mt-1">{errors.image}</p>
+          )}
+        </div>
+
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-teal-600 text-white py-2 rounded-md text-sm font-medium hover:bg-teal-700 disabled:opacity-50"
         >
           {loading ? "Creating account..." : "Register"}
+        </button>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center text-xs text-gray-400">
+            <span className="bg-white px-2">or</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={googleRegister}
+          className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 duration-100 cursor-pointer"
+        >
+          <GoogleIcon />
+          Continue with Google
         </button>
 
         <p className="text-center text-sm text-gray-500">
