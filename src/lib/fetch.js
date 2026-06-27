@@ -34,3 +34,8 @@ export const fetchSellerOrders = async (sellerId) => {
   const res = await fetch(`${url}/api/orders?sellerId=${sellerId}`);
   return res.json();
 };
+
+export const fetchWishlist = async (userId) => {
+  const res = await fetch(`${url}/api/wishlist?userId=${userId}`);
+  return res.json();
+};

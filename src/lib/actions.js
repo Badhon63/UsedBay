@@ -39,3 +39,11 @@ export const createOrder = async (orderData) => {
   });
   return res.json();
 };
+
+export const removeFromWishlist = async (wishlistId) => {
+  const res = await fetch(`${url}/api/wishlist/${wishlistId}`, {
+    method: "DELETE",
+    headers: { "content-type": "application/json" },
+  });
+  return res.json();
+};

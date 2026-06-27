@@ -6,6 +6,7 @@ import Image from "next/image";
 import { FiHeart, FiShare2 } from "react-icons/fi";
 import { toast } from "sonner";
 import { addToCart } from "@/lib/cart";
+import { useSession } from "@/lib/auth-client";
 
 const ProductDetails = ({ product }) => {
   const router = useRouter();
@@ -18,8 +19,21 @@ const ProductDetails = ({ product }) => {
     router.push("/cart");
   };
 
-  const handleAddToWishlist = () => {
-    toast.success("Added to wishlist");
+  const { data: session } = useSession();
+  const user = session?.user;
+
+  const handleAddToWishlist = async () => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/wishlist`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ userId: user?.id, productId: product._id }),
+      },
+    );
+    if (res.ok) {
+      toast.success("Added to wishlist");
+    }
   };
 
   const handleShare = () => {

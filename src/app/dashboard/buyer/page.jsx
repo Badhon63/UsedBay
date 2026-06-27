@@ -1,34 +1,7 @@
 import DashboardHome from "@/components/dashboard/buyer/DashboardHome";
-
-const dummyOrders = [
-  {
-    _id: "order001",
-    buyerInfo: { userId: "user001", name: "Md. Rakib Hasan" },
-    productId: "product001",
-    productTitle: "Dell Inspiron 15 Laptop",
-    orderStatus: "delivered",
-  },
-  {
-    _id: "order002",
-    buyerInfo: { userId: "user001", name: "Md. Rakib Hasan" },
-    productId: "product002",
-    productTitle: "iPhone 12 Pro",
-    orderStatus: "delivered",
-  },
-  {
-    _id: "order003",
-    buyerInfo: { userId: "user001", name: "Md. Rakib Hasan" },
-    productId: "product003",
-    productTitle: "Wooden Dining Table",
-    orderStatus: "processing",
-  },
-];
-
-const dummyWishlist = [
-  { _id: "wish001", productId: "product004", productTitle: "Designer Jacket" },
-  { _id: "wish002", productId: "product005", productTitle: "Samsung TV" },
-  { _id: "wish003", productId: "product006", productTitle: "Mountain Bike" },
-];
+import { auth } from "@/lib/auth";
+import { fetchBuyerOrders, fetchWishlist } from "@/lib/fetch";
+import { headers } from "next/headers";
 
 const dummyRecentPurchases = [
   { _id: "product001", title: "Dell Inspiron 15 Laptop" },
@@ -39,8 +12,16 @@ const dummyRecentPurchases = [
 ];
 
 const BuyerDashboardPage = async () => {
-  const totalOrders = dummyOrders.length;
-  const wishlistCount = dummyWishlist.length;
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const userId = session?.user?.id;
+
+  const orders = await fetchBuyerOrders(userId);
+  const wishlist = await fetchWishlist(userId);
+
+  const totalOrders = orders.length;
+  const wishlistCount = wishlist.length;
   const recentPurchases = dummyRecentPurchases;
 
   return (
