@@ -3,7 +3,7 @@ import React from "react";
 
 const MyProductsPage = () => {
   return (
-    <div>
+    <div className="w-full max-w-7xl mx-auto">
       <MyProducts />
     </div>
   );
