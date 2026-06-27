@@ -8,3 +8,8 @@ export const fetchMyProducts = async (sellerId = null) => {
   const res = await fetch(endpoint);
   return res.json();
 };
+
+export const fetchProductById = async (productId) => {
+  const res = await fetch(`${url}/api/products/${productId}`);
+  return res.json();
+};

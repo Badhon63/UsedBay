@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const ProductCard = ({ product }) => {
   return (
@@ -9,6 +10,7 @@ const ProductCard = ({ product }) => {
           alt={product.title}
           fill
           unoptimized
+          loading="eager"
           className="object-cover"
         />
       </div>
@@ -37,9 +39,12 @@ const ProductCard = ({ product }) => {
           <span className="text-2xl font-bold text-teal-600">
             ৳{product.price}
           </span>
-          <button className="bg-teal-600 text-white px-4 py-2 rounded text-sm hover:bg-teal-700">
+          <Link
+            href={`/products/${product._id}`}
+            className="bg-teal-600 text-white px-4 py-2 rounded text-sm hover:bg-teal-700 cursor-pointer"
+          >
             View
-          </button>
+          </Link>
         </div>
 
         <p className="text-xs text-gray-500 mt-3">
