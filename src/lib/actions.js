@@ -30,3 +30,12 @@ export const DeleteProduct = async (productId) => {
   }
   return res.json();
 };
+
+export const createOrder = async (orderData) => {
+  const res = await fetch(`${url}/api/orders`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(orderData),
+  });
+  return res.json();
+};

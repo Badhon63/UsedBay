@@ -1,3 +1,5 @@
+// lib/cart.js
+
 export const addToCart = (product, quantity) => {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -12,6 +14,7 @@ export const addToCart = (product, quantity) => {
       price: product.price,
       image: product.images[0],
       quantity,
+      sellerInfo: product.sellerInfo,
     });
   }
 

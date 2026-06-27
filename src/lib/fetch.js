@@ -24,3 +24,13 @@ export const fetchAllProductsPage = async (
   );
   return res.json();
 };
+
+export const fetchBuyerOrders = async (buyerId) => {
+  const res = await fetch(`${url}/api/orders?buyerId=${buyerId}`);
+  return res.json();
+};
+
+export const fetchSellerOrders = async (sellerId) => {
+  const res = await fetch(`${url}/api/orders?sellerId=${sellerId}`);
+  return res.json();
+};

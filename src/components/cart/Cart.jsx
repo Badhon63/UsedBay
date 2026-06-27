@@ -2,10 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FiTrash2 } from "react-icons/fi";
+import { useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { createOrder } from "@/lib/actions";
 
 const Cart = () => {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,9 +37,23 @@ const Cart = () => {
     toast.success("Removed from cart");
   };
 
-  const handleCheckout = () => {
-    toast.success("Proceeding to checkout");
-    // Later: navigate to checkout page
+  const handleCheckout = async () => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    for (let item of cart) {
+      const orderData = {
+        buyerInfo: { userId: user.id, name: user.name, email: user.email },
+        sellerInfo: item.sellerInfo,
+        productId: item._id,
+        productTitle: item.title,
+        totalAmount: item.price * item.quantity,
+      };
+
+      await createOrder(orderData);
+      toast.success("product ordered successfully");
+    }
+
+    localStorage.removeItem("cart");
   };
 
   const totalPrice = cart.reduce(
