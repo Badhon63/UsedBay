@@ -1,4 +1,5 @@
 import AllProducts from "@/components/products/AllProducts";
+import { fetchAllProductsPage } from "@/lib/fetch";
 
 const ProductsPage = async ({ searchParams }) => {
   const params = await searchParams;
@@ -6,11 +7,7 @@ const ProductsPage = async ({ searchParams }) => {
   const search = params.search || "";
   const sort = params.sort || "newest";
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/products?page=${page}&search=${search}&sort=${sort}`,
-    { cache: "no-store" },
-  );
-  const data = await res.json();
+  const data = await fetchAllProductsPage(page, search, sort);
 
   return (
     <div className="w-full max-w-7xl mx-auto">

@@ -35,12 +35,12 @@ const AllProducts = ({ products, total, pages, currentPage, search, sort }) => {
 
   return (
     <div className="p-4 sm:p-6">
-      <div className="mb-8">
+      <Link href={"/products"} className="cursor-pointer">
         <h1 className="text-3xl font-bold text-gray-900">All Products</h1>
         <p className="text-gray-600 mt-1">Browse all available products</p>
-      </div>
+      </Link>
 
-      <div className="bg-white rounded-lg mb-5">
+      <div className="bg-white rounded-lg mb-5 mt-8">
         <form
           onSubmit={handleSearch}
           className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"

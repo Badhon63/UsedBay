@@ -13,3 +13,14 @@ export const fetchProductById = async (productId) => {
   const res = await fetch(`${url}/api/products/${productId}`);
   return res.json();
 };
+
+export const fetchAllProductsPage = async (
+  page = 1,
+  search = "",
+  sort = "newest",
+) => {
+  const res = await fetch(
+    `${url}/api/all-products?page=${page}&search=${search}&sort=${sort}`,
+  );
+  return res.json();
+};
