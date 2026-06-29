@@ -4,7 +4,9 @@ import { headers } from "next/headers";
 
 const PaymentHistoryPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
-  const payments = session?.user ? await fetchPaymentHistory(session.user.id) : [];
+  const payments = session?.user
+    ? await fetchPaymentHistory(session.user.id)
+    : [];
 
   return (
     <div className="p-4 sm:p-6">
@@ -24,17 +26,27 @@ const PaymentHistoryPage = async () => {
             <table className="w-full text-sm">
               <thead className="border-b bg-gray-50">
                 <tr>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Transaction ID</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Amount</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Method</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Date</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                    Transaction ID
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                    Amount
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                    Method
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                    Status
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                    Date
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {payments.map((payment) => (
                   <tr key={payment._id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4 font-mono text-xs text-gray-600 max-w-[180px] truncate">
+                    <td className="py-3 px-4 font-mono text-xs text-gray-600 max-w-45 truncate">
                       {payment.transactionId}
                     </td>
                     <td className="py-3 px-4 font-bold text-teal-600">
@@ -49,15 +61,17 @@ const PaymentHistoryPage = async () => {
                           payment.paymentStatus === "success"
                             ? "bg-green-100 text-green-800"
                             : payment.paymentStatus === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
                         }`}
                       >
                         {payment.paymentStatus}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-gray-500">
-                      {new Date(payment.paymentDate).toLocaleDateString("en-BD")}
+                      {new Date(payment.paymentDate).toLocaleDateString(
+                        "en-BD",
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -121,36 +121,38 @@ const Register = () => {
 
     setLoading(true);
 
-    await signUp.email(
-      {
-        email: formData.email,
-        password: formData.password,
-        name: formData.name,
-        role: formData.role,
-        phone: formData.phone,
-        image: formData.image || null,
-        location: formData.location,
-        status: "active",
+    const signUpData = {
+      email: formData.email,
+      password: formData.password,
+      name: formData.name,
+      role: formData.role,
+      phone: formData.phone,
+      location: formData.location,
+      status: "active",
+    };
+
+    if (formData.image) {
+      signUpData.image = formData.image;
+    }
+
+    await signUp.email(signUpData, {
+      onSuccess: () => {
+        router.push("/");
       },
-      {
-        onSuccess: () => {
-          router.push("/");
-        },
-        onError: (ctx) => {
-          const message = ctx.error.message || "Something went wrong";
-          if (
-            message.toLowerCase().includes("email") ||
-            message.toLowerCase().includes("user already")
-          ) {
-            setErrors({ email: message });
-          } else if (message.toLowerCase().includes("password")) {
-            setErrors({ password: message });
-          } else {
-            setErrors({ form: message });
-          }
-        },
+      onError: (ctx) => {
+        const message = ctx.error.message || "Something went wrong";
+        if (
+          message.toLowerCase().includes("email") ||
+          message.toLowerCase().includes("user already")
+        ) {
+          setErrors({ email: message });
+        } else if (message.toLowerCase().includes("password")) {
+          setErrors({ password: message });
+        } else {
+          setErrors({ form: message });
+        }
       },
-    );
+    });
 
     setLoading(false);
   };

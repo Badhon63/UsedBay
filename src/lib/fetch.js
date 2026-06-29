@@ -41,12 +41,12 @@ export const fetchProductById = async (productId) => {
 export const fetchAllProductsPage = async (
   page = 1,
   search = "",
-  sort = "newest"
+  sort = "newest",
 ) => {
   try {
     const res = await fetch(
       `${getUrl()}/api/all-products?page=${page}&search=${encodeURIComponent(search)}&sort=${sort}`,
-      { cache: "no-store" }
+      { cache: "no-store" },
     );
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json();
@@ -148,7 +148,7 @@ export const fetchSellerStats = async (sellerId) => {
   try {
     const res = await fetch(
       `${getUrl()}/api/seller/stats?sellerId=${sellerId}`,
-      { cache: "no-store" }
+      { cache: "no-store" },
     );
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json();
@@ -255,5 +255,53 @@ export const initPayment = async ({
   } catch (error) {
     console.error("initPayment error:", error.message);
     return null;
+  }
+};
+
+// ===================== PAYMENT (Stripe) =====================
+
+export const createPaymentIntent = async (amount) => {
+  try {
+    const res = await fetch(`${getUrl()}/api/payment/create-intent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount }),
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("createPaymentIntent error:", error.message);
+    return null;
+  }
+};
+
+export const confirmPayment = async (paymentData) => {
+  try {
+    const res = await fetch(`${getUrl()}/api/payment/confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(paymentData),
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("confirmPayment error:", error.message);
+    return { success: false };
+  }
+};
+
+export const fetchPaymentHistory = async (userId) => {
+  try {
+    const res = await fetch(
+      `${getUrl()}/api/payment/history?userId=${userId}`,
+      {
+        cache: "no-store",
+      },
+    );
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("fetchPaymentHistory error:", error.message);
+    return [];
   }
 };
