@@ -1,4 +1,5 @@
-const url = process.env.NEXT_PUBLIC_SERVER_URL;
+const url = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
+console.log("SERVER URL:", url);
 
 export const fetchMyProducts = async (sellerId = null) => {
   let endpoint = `${url}/api/products`;

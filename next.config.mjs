@@ -1,14 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
-  reactCompiler: true,
-  images: {
-    remotePatterns: [
+  async rewrites() {
+    return [
       {
-        protocol: "https",
-        hostname: "**",
+        source: "/server/:path*",
+        destination: "http://localhost:5000/:path*",
       },
-    ],
+    ];
   },
 };
 

@@ -81,19 +81,37 @@ const DashboardHome = ({ totalOrders, wishlistCount, recentPurchases }) => {
           </Link>
         </div>
 
-        <div className="space-y-3">
-          {recentPurchases.map((product) => (
-            <div
-              key={product._id}
-              className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
-            >
-              <p className="text-gray-900 font-medium">{product.title}</p>
-              <span className="text-xs px-3 py-1 rounded bg-green-100 text-green-800 font-medium">
-                Purchased
-              </span>
-            </div>
-          ))}
-        </div>
+        {recentPurchases.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-4xl mb-3">🛍️</p>
+            <p className="text-gray-400">No purchases yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {recentPurchases.map((item) => (
+              <div
+                key={item._id}
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+              >
+                <div>
+                  <p className="text-gray-900 font-medium">{item.productTitle || item.title}</p>
+                  {item.totalAmount && (
+                    <p className="text-sm text-teal-600 font-semibold">৳{item.totalAmount}</p>
+                  )}
+                </div>
+                <span className={`text-xs px-3 py-1 rounded font-medium ${
+                  item.orderStatus === "delivered"
+                    ? "bg-green-100 text-green-800"
+                    : item.orderStatus === "pending"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-blue-100 text-blue-800"
+                }`}>
+                  {item.orderStatus ? item.orderStatus.charAt(0).toUpperCase() + item.orderStatus.slice(1) : "Purchased"}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
