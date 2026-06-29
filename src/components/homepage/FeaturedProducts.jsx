@@ -1,9 +1,33 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { fetchMyProducts } from "@/lib/fetch";
 import ProductCard from "../products/ProductCard";
 
-const FeaturedProducts = async () => {
-  const allProducts = await fetchMyProducts();
-  const products = allProducts.slice(0, 6);
+const SkeletonCard = () => (
+  <div className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
+    <div className="h-52 bg-gray-200" />
+    <div className="p-4 space-y-3">
+      <div className="h-4 bg-gray-200 rounded w-3/4" />
+      <div className="h-3 bg-gray-200 rounded w-1/2" />
+      <div className="flex items-center justify-between pt-1">
+        <div className="h-5 bg-gray-200 rounded w-1/3" />
+        <div className="h-8 bg-gray-200 rounded-lg w-1/4" />
+      </div>
+    </div>
+  </div>
+);
+
+const FeaturedProducts = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchMyProducts().then((all) => {
+      setProducts(all.slice(0, 6));
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <section className="py-16 bg-white">
@@ -16,9 +40,11 @@ const FeaturedProducts = async () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
-          ))}
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+            : products.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
         </div>
       </div>
     </section>

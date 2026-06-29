@@ -1,8 +1,19 @@
-const url = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
-console.log("SERVER URL:", url);
+// Server Component এ relative URL কাজ করে না, তাই
+// next.config.js এ /server/* → localhost:5000/* proxy করা হয়েছে
+
+const getUrl = () => {
+  // Server side (SSR) — absolute URL লাগে
+  if (typeof window === "undefined") {
+    return process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
+  }
+  // Client side — proxy route use করি
+  return "/server";
+};
+
+// ===================== PRODUCTS =====================
 
 export const fetchMyProducts = async (sellerId = null) => {
-  let endpoint = `${url}/api/products`;
+  let endpoint = `${getUrl()}/api/products`;
   if (sellerId) endpoint += `?sellerId=${sellerId}`;
   try {
     const res = await fetch(endpoint, { cache: "no-store" });
@@ -16,7 +27,9 @@ export const fetchMyProducts = async (sellerId = null) => {
 
 export const fetchProductById = async (productId) => {
   try {
-    const res = await fetch(`${url}/api/products/${productId}`, { cache: "no-store" });
+    const res = await fetch(`${getUrl()}/api/products/${productId}`, {
+      cache: "no-store",
+    });
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json();
   } catch (error) {
@@ -25,10 +38,14 @@ export const fetchProductById = async (productId) => {
   }
 };
 
-export const fetchAllProductsPage = async (page = 1, search = "", sort = "newest") => {
+export const fetchAllProductsPage = async (
+  page = 1,
+  search = "",
+  sort = "newest"
+) => {
   try {
     const res = await fetch(
-      `${url}/api/all-products?page=${page}&search=${search}&sort=${sort}`,
+      `${getUrl()}/api/all-products?page=${page}&search=${encodeURIComponent(search)}&sort=${sort}`,
       { cache: "no-store" }
     );
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -39,9 +56,13 @@ export const fetchAllProductsPage = async (page = 1, search = "", sort = "newest
   }
 };
 
+// ===================== ORDERS =====================
+
 export const fetchBuyerOrders = async (buyerId) => {
   try {
-    const res = await fetch(`${url}/api/orders?buyerId=${buyerId}`, { cache: "no-store" });
+    const res = await fetch(`${getUrl()}/api/orders?buyerId=${buyerId}`, {
+      cache: "no-store",
+    });
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json();
   } catch (error) {
@@ -52,7 +73,9 @@ export const fetchBuyerOrders = async (buyerId) => {
 
 export const fetchSellerOrders = async (sellerId) => {
   try {
-    const res = await fetch(`${url}/api/orders?sellerId=${sellerId}`, { cache: "no-store" });
+    const res = await fetch(`${getUrl()}/api/orders?sellerId=${sellerId}`, {
+      cache: "no-store",
+    });
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json();
   } catch (error) {
@@ -61,9 +84,28 @@ export const fetchSellerOrders = async (sellerId) => {
   }
 };
 
+export const updateOrderStatus = async (orderId, orderStatus) => {
+  try {
+    const res = await fetch(`${getUrl()}/api/orders/${orderId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderStatus }),
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("updateOrderStatus error:", error.message);
+    return null;
+  }
+};
+
+// ===================== WISHLIST =====================
+
 export const fetchWishlist = async (userId) => {
   try {
-    const res = await fetch(`${url}/api/wishlist?userId=${userId}`, { cache: "no-store" });
+    const res = await fetch(`${getUrl()}/api/wishlist?userId=${userId}`, {
+      cache: "no-store",
+    });
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json();
   } catch (error) {
@@ -72,9 +114,42 @@ export const fetchWishlist = async (userId) => {
   }
 };
 
+export const addToWishlist = async (userId, productId) => {
+  try {
+    const res = await fetch(`${getUrl()}/api/wishlist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, productId }),
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("addToWishlist error:", error.message);
+    return null;
+  }
+};
+
+export const removeFromWishlist = async (wishlistItemId) => {
+  try {
+    const res = await fetch(`${getUrl()}/api/wishlist/${wishlistItemId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("removeFromWishlist error:", error.message);
+    return null;
+  }
+};
+
+// ===================== SELLER =====================
+
 export const fetchSellerStats = async (sellerId) => {
   try {
-    const res = await fetch(`${url}/api/seller/stats?sellerId=${sellerId}`, { cache: "no-store" });
+    const res = await fetch(
+      `${getUrl()}/api/seller/stats?sellerId=${sellerId}`,
+      { cache: "no-store" }
+    );
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json();
   } catch (error) {
@@ -83,55 +158,102 @@ export const fetchSellerStats = async (sellerId) => {
   }
 };
 
-export const updateOrderStatus = async (orderId, orderStatus) => {
-  try {
-    const res = await fetch(`${url}/api/orders/${orderId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderStatus }),
-    });
-    return res.json();
-  } catch (error) {
-    console.error("updateOrderStatus error:", error.message);
-    return null;
-  }
-};
+// ===================== ADMIN =====================
 
-export const createPaymentIntent = async (amount) => {
+export const fetchAllUsers = async () => {
   try {
-    const res = await fetch(`${url}/api/payment/create-intent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount }),
+    const res = await fetch(`${getUrl()}/api/admin/users`, {
+      cache: "no-store",
     });
-    return res.json();
-  } catch (error) {
-    console.error("createPaymentIntent error:", error.message);
-    return null;
-  }
-};
-
-export const confirmPayment = async (paymentData) => {
-  try {
-    const res = await fetch(`${url}/api/payment/confirm`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(paymentData),
-    });
-    return res.json();
-  } catch (error) {
-    console.error("confirmPayment error:", error.message);
-    return null;
-  }
-};
-
-export const fetchPaymentHistory = async (buyerId) => {
-  try {
-    const res = await fetch(`${url}/api/payments?buyerId=${buyerId}`, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json();
   } catch (error) {
-    console.error("fetchPaymentHistory error:", error.message);
+    console.error("fetchAllUsers error:", error.message);
     return [];
+  }
+};
+
+export const updateUserStatus = async (userId, status) => {
+  try {
+    const res = await fetch(`${getUrl()}/api/admin/users/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("updateUserStatus error:", error.message);
+    return null;
+  }
+};
+
+export const deleteUser = async (userId) => {
+  try {
+    const res = await fetch(`${getUrl()}/api/admin/users/${userId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("deleteUser error:", error.message);
+    return null;
+  }
+};
+
+export const fetchAllOrders = async () => {
+  try {
+    const res = await fetch(`${getUrl()}/api/admin/orders`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("fetchAllOrders error:", error.message);
+    return [];
+  }
+};
+
+export const fetchAllProductsAdmin = async () => {
+  try {
+    const res = await fetch(`${getUrl()}/api/admin/products`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("fetchAllProductsAdmin error:", error.message);
+    return [];
+  }
+};
+
+// ===================== PAYMENT (SSLCommerz) =====================
+
+export const initPayment = async ({
+  amount,
+  buyerInfo,
+  productId,
+  productTitle,
+  sellerInfo,
+  deliveryInfo,
+}) => {
+  try {
+    const res = await fetch(`${getUrl()}/api/payment/init`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount,
+        buyerInfo,
+        productId,
+        productTitle,
+        sellerInfo,
+        deliveryInfo,
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json(); // { url: GatewayPageURL }
+  } catch (error) {
+    console.error("initPayment error:", error.message);
+    return null;
   }
 };

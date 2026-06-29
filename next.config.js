@@ -4,10 +4,10 @@ const nextConfig = {
     return [
       {
         source: "/server/:path*",
-        destination: "http://localhost:5000/:path*",
+        destination: `${process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"}/:path*`,
       },
     ];
   },
 };
-
-export default nextConfig;
+ 
+module.exports = nextConfig;
