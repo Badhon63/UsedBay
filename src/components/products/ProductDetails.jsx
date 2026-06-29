@@ -5,31 +5,35 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { FiHeart, FiShare2 } from "react-icons/fi";
 import { toast } from "sonner";
-import { addToCart } from "@/lib/cart";
 import { useSession } from "@/lib/auth-client";
 
 const ProductDetails = ({ product }) => {
   const router = useRouter();
   const [mainImage, setMainImage] = useState(product.images[0]);
-  const [quantity, setQuantity] = useState(1);
-
-  const handleAddToCart = () => {
-    addToCart(product, quantity);
-    toast.success("Added to cart");
-    router.push("/cart");
-  };
-
   const { data: session } = useSession();
   const user = session?.user;
 
+  const handleBuyNow = () => {
+    if (!user) {
+      toast.error("Please login to purchase");
+      router.push("/login");
+      return;
+    }
+    router.push(`/checkout/${product._id}`);
+  };
+
   const handleAddToWishlist = async () => {
+    if (!user) {
+      toast.error("Please login first");
+      return;
+    }
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/api/wishlist`,
       {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ userId: user?.id, productId: product._id }),
-      },
+      }
     );
     if (res.ok) {
       toast.success("Added to wishlist");
@@ -37,7 +41,8 @@ const ProductDetails = ({ product }) => {
   };
 
   const handleShare = () => {
-    toast.success("Link copied");
+    navigator.clipboard.writeText(window.location.href);
+    toast.success("Link copied to clipboard");
   };
 
   return (
@@ -87,16 +92,12 @@ const ProductDetails = ({ product }) => {
           </h1>
 
           <div className="flex gap-4 mb-6">
-            <div>
-              <span className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded font-medium">
-                {product.category}
-              </span>
-            </div>
-            <div>
-              <span className="text-xs bg-gray-100 text-gray-800 px-3 py-1 rounded font-medium">
-                {product.condition}
-              </span>
-            </div>
+            <span className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded font-medium">
+              {product.category}
+            </span>
+            <span className="text-xs bg-gray-100 text-gray-800 px-3 py-1 rounded font-medium">
+              {product.condition}
+            </span>
           </div>
 
           <div className="mb-6">
@@ -131,32 +132,12 @@ const ProductDetails = ({ product }) => {
 
           {/* Actions */}
           <div className="space-y-3 mb-6">
-            <div className="flex gap-3 items-center">
-              <label className="text-sm font-medium text-gray-900">
-                Quantity:
-              </label>
-              <div className="flex items-center border border-gray-300 rounded-md">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer"
-                >
-                  −
-                </button>
-                <span className="px-4 py-2">{quantity}</span>
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
+            {/* Buy Now */}
             <button
-              onClick={handleAddToCart}
-              className="w-full bg-teal-600 text-white py-3 rounded-md font-semibold hover:bg-teal-700 cursor-pointer"
+              onClick={handleBuyNow}
+              className="w-full bg-teal-600 text-white py-3 rounded-md font-semibold hover:bg-teal-700 cursor-pointer transition"
             >
-              Add to Cart
+              Buy Now
             </button>
 
             <div className="flex gap-3">

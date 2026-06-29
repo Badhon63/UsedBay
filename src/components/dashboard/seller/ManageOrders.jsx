@@ -1,20 +1,25 @@
 "use client";
-
+ 
+import { useState } from "react";
 import { AlertDialog, Button } from "@heroui/react";
-
-const ManageOrders = ({ orders }) => {
-  const handleAccept = async (orderId) => {
-    alert("Order accepted");
+import { updateOrderStatus } from "@/lib/fetch";
+ 
+const ManageOrders = ({ orders: initialOrders }) => {
+  const [orders, setOrders] = useState(initialOrders);
+ 
+  const updateStatus = async (orderId, newStatus) => {
+    await updateOrderStatus(orderId, newStatus);
+    setOrders((prev) =>
+      prev.map((o) =>
+        o._id === orderId ? { ...o, orderStatus: newStatus } : o
+      )
+    );
   };
-
-  const handleReject = async (orderId) => {
-    alert("Order rejected");
-  };
-
-  const handleStatusChange = async (orderId, newStatus) => {
-    alert(`Order status updated to ${newStatus}`);
-  };
-
+ 
+  const handleAccept = (orderId) => updateStatus(orderId, "accepted");
+  const handleReject = (orderId) => updateStatus(orderId, "rejected");
+  const handleStatusChange = (orderId, newStatus) => updateStatus(orderId, newStatus);
+ 
   const getNextStatus = (currentStatus) => {
     const flow = {
       accepted: "processing",
@@ -23,42 +28,33 @@ const ManageOrders = ({ orders }) => {
     };
     return flow[currentStatus];
   };
-
+ 
   const statusColors = {
     pending: "bg-yellow-100 text-yellow-800",
     accepted: "bg-blue-100 text-blue-800",
     processing: "bg-purple-100 text-purple-800",
     shipped: "bg-cyan-100 text-cyan-800",
     delivered: "bg-green-100 text-green-800",
+    rejected: "bg-red-100 text-red-800",
   };
-
+ 
   return (
     <div className="p-4 sm:p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Manage Orders</h1>
         <p className="text-gray-600 mt-1">Handle incoming customer orders</p>
       </div>
-
+ 
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b bg-gray-50">
               <tr>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">
-                  Buyer
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">
-                  Product
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">
-                  Payment
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">
-                  Status
-                </th>
-                <th className="text-center py-3 px-4 font-semibold text-gray-900">
-                  Actions
-                </th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900">Buyer</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900">Product</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900">Payment</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
+                <th className="text-center py-3 px-4 font-semibold text-gray-900">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -89,11 +85,7 @@ const ManageOrders = ({ orders }) => {
                         <>
                           <AlertDialog>
                             <AlertDialog.Trigger>
-                              <Button
-                                size="sm"
-                                variant="flat"
-                                className="bg-green-100 text-green-700"
-                              >
+                              <Button size="sm" variant="flat" className="bg-green-100 text-green-700">
                                 Accept
                               </Button>
                             </AlertDialog.Trigger>
@@ -103,21 +95,16 @@ const ManageOrders = ({ orders }) => {
                                   <AlertDialog.CloseTrigger />
                                   <AlertDialog.Header>
                                     <AlertDialog.Icon status="success" />
-                                    <AlertDialog.Heading>
-                                      Accept order?
-                                    </AlertDialog.Heading>
+                                    <AlertDialog.Heading>Accept order?</AlertDialog.Heading>
                                   </AlertDialog.Header>
                                   <AlertDialog.Body>
                                     <p>
                                       This order from{" "}
-                                      <strong>{order.buyerInfo.name}</strong>{" "}
-                                      will be accepted.
+                                      <strong>{order.buyerInfo.name}</strong> will be accepted.
                                     </p>
                                   </AlertDialog.Body>
                                   <AlertDialog.Footer>
-                                    <Button slot="close" variant="tertiary">
-                                      Cancel
-                                    </Button>
+                                    <Button slot="close" variant="tertiary">Cancel</Button>
                                     <Button
                                       onClick={() => handleAccept(order._id)}
                                       slot="close"
@@ -131,14 +118,10 @@ const ManageOrders = ({ orders }) => {
                               </AlertDialog.Container>
                             </AlertDialog.Backdrop>
                           </AlertDialog>
-
+ 
                           <AlertDialog>
                             <AlertDialog.Trigger>
-                              <Button
-                                size="sm"
-                                variant="flat"
-                                className="bg-red-100 text-red-700"
-                              >
+                              <Button size="sm" variant="flat" className="bg-red-100 text-red-700">
                                 Reject
                               </Button>
                             </AlertDialog.Trigger>
@@ -148,21 +131,16 @@ const ManageOrders = ({ orders }) => {
                                   <AlertDialog.CloseTrigger />
                                   <AlertDialog.Header>
                                     <AlertDialog.Icon status="danger" />
-                                    <AlertDialog.Heading>
-                                      Reject order?
-                                    </AlertDialog.Heading>
+                                    <AlertDialog.Heading>Reject order?</AlertDialog.Heading>
                                   </AlertDialog.Header>
                                   <AlertDialog.Body>
                                     <p>
                                       This order from{" "}
-                                      <strong>{order.buyerInfo.name}</strong>{" "}
-                                      will be rejected.
+                                      <strong>{order.buyerInfo.name}</strong> will be rejected.
                                     </p>
                                   </AlertDialog.Body>
                                   <AlertDialog.Footer>
-                                    <Button slot="close" variant="tertiary">
-                                      Cancel
-                                    </Button>
+                                    <Button slot="close" variant="tertiary">Cancel</Button>
                                     <Button
                                       onClick={() => handleReject(order._id)}
                                       slot="close"
@@ -177,16 +155,13 @@ const ManageOrders = ({ orders }) => {
                           </AlertDialog>
                         </>
                       )}
-
+ 
                       {order.orderStatus !== "pending" &&
-                        order.orderStatus !== "delivered" && (
+                        order.orderStatus !== "delivered" &&
+                        order.orderStatus !== "rejected" && (
                           <AlertDialog>
                             <AlertDialog.Trigger>
-                              <Button
-                                size="sm"
-                                variant="flat"
-                                className="bg-blue-100 text-blue-700"
-                              >
+                              <Button size="sm" variant="flat" className="bg-blue-100 text-blue-700">
                                 Update
                               </Button>
                             </AlertDialog.Trigger>
@@ -196,28 +171,21 @@ const ManageOrders = ({ orders }) => {
                                   <AlertDialog.CloseTrigger />
                                   <AlertDialog.Header>
                                     <AlertDialog.Icon status="info" />
-                                    <AlertDialog.Heading>
-                                      Update order status?
-                                    </AlertDialog.Heading>
+                                    <AlertDialog.Heading>Update order status?</AlertDialog.Heading>
                                   </AlertDialog.Header>
                                   <AlertDialog.Body>
                                     <p>
                                       Mark order as{" "}
-                                      <strong>
-                                        {getNextStatus(order.orderStatus)}
-                                      </strong>
-                                      ?
+                                      <strong>{getNextStatus(order.orderStatus)}</strong>?
                                     </p>
                                   </AlertDialog.Body>
                                   <AlertDialog.Footer>
-                                    <Button slot="close" variant="tertiary">
-                                      Cancel
-                                    </Button>
+                                    <Button slot="close" variant="tertiary">Cancel</Button>
                                     <Button
                                       onClick={() =>
                                         handleStatusChange(
                                           order._id,
-                                          getNextStatus(order.orderStatus),
+                                          getNextStatus(order.orderStatus)
                                         )
                                       }
                                       slot="close"
@@ -232,9 +200,13 @@ const ManageOrders = ({ orders }) => {
                             </AlertDialog.Backdrop>
                           </AlertDialog>
                         )}
-
+ 
                       {order.orderStatus === "delivered" && (
                         <span className="text-xs text-gray-500">Completed</span>
+                      )}
+ 
+                      {order.orderStatus === "rejected" && (
+                        <span className="text-xs text-red-400">Rejected</span>
                       )}
                     </div>
                   </td>
@@ -247,5 +219,5 @@ const ManageOrders = ({ orders }) => {
     </div>
   );
 };
-
+ 
 export default ManageOrders;
