@@ -65,11 +65,13 @@ const ManageUsersPage = () => {
     return <div className="mx-auto">{Loading()}</div>;
   }
 
-  const filtered = users.filter(
-    (u) =>
-      u.name?.toLowerCase().includes(search.toLowerCase()) ||
-      u.email?.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = users
+    .filter((u) => u.role !== "admin") // Exclude admins
+    .filter(
+      (u) =>
+        u.name?.toLowerCase().includes(search.toLowerCase()) ||
+        u.email?.toLowerCase().includes(search.toLowerCase()),
+    );
 
   return (
     <div className="p-4 sm:p-6 w-full">
