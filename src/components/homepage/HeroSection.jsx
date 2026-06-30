@@ -3,10 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useSession } from "@/lib/auth-client";
 
 export default function HeroSection() {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   return (
-    <section className="bg-gradient-to-r from-teal-50 to-teal-100 py-20">
+    <section className="bg-linear-to-r from-teal-50 to-teal-100 py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
           <motion.div
@@ -27,12 +31,14 @@ export default function HeroSection() {
               >
                 Start Shopping
               </Link>
-              <Link
-                href="/register"
-                className="border-2 border-teal-600 text-teal-600 px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition"
-              >
-                Start Selling
-              </Link>
+              {!user && (
+                <Link
+                  href="/register"
+                  className="border-2 border-teal-600 text-teal-600 px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition"
+                >
+                  Start Selling
+                </Link>
+              )}
             </div>
           </motion.div>
 
@@ -73,7 +79,9 @@ export default function HeroSection() {
                 transition={{ duration: 0.4, delay: 0.5 + i * 0.1 }}
                 className="text-center"
               >
-                <div className="text-4xl font-bold text-teal-600 mb-2">{value}</div>
+                <div className="text-4xl font-bold text-teal-600 mb-2">
+                  {value}
+                </div>
                 <p className="text-gray-700">{label}</p>
               </motion.div>
             ))}

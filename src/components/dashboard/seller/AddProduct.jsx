@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { createProduct } from "@/lib/actions";
+import Loading from "@/app/loading";
 
 const AddProduct = () => {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
   const user = session?.user;
 
   const [formData, setFormData] = useState({
@@ -145,6 +146,10 @@ const AddProduct = () => {
 
     setLoading(false);
   };
+
+  if (isPending) {
+    return <Loading />;
+  }
 
   return (
     <div className="p-4 sm:p-6">

@@ -12,12 +12,16 @@ import {
 } from "recharts";
 import Link from "next/link";
 
-const DashboardHome = () => {
+const DashboardHome = ({ data }) => {
+  if (!data) {
+    return <div className="p-6 text-center text-gray-500">Loading...</div>;
+  }
+
   const stats = [
     {
       id: 1,
       label: "Total Products",
-      value: 24,
+      value: data.stats.totalProducts,
       icon: FiPackage,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
@@ -25,7 +29,7 @@ const DashboardHome = () => {
     {
       id: 2,
       label: "Total Sales",
-      value: 156,
+      value: data.stats.totalSales,
       icon: FiTrendingUp,
       color: "text-green-600",
       bgColor: "bg-green-50",
@@ -33,7 +37,7 @@ const DashboardHome = () => {
     {
       id: 3,
       label: "Total Revenue",
-      value: "৳425,000",
+      value: data.stats.totalRevenue,
       icon: FiDollarSign,
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
@@ -41,95 +45,11 @@ const DashboardHome = () => {
     {
       id: 4,
       label: "Pending Orders",
-      value: 8,
+      value: data.stats.pendingOrders,
       icon: FiClock,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
     },
-  ];
-
-  const chartData = [
-    { month: "Jan", sales: 4000 },
-    { month: "Feb", sales: 3000 },
-    { month: "Mar", sales: 2000 },
-    { month: "Apr", sales: 2780 },
-    { month: "May", sales: 1890 },
-    { month: "Jun", sales: 2390 },
-    { month: "Jul", sales: 3490 },
-  ];
-
-  const topProducts = [
-    {
-      id: 1,
-      name: "Dell Inspiron 15 Laptop",
-      sales: 45,
-      revenue: "৳1,575,000",
-    },
-    { id: 2, name: "iPhone 12 Pro", sales: 32, revenue: "৳1,440,000" },
-    { id: 3, name: "Wooden Dining Table", sales: 28, revenue: "৳420,000" },
-    { id: 4, name: "Designer Winter Jacket", sales: 18, revenue: "৳81,000" },
-    { id: 5, name: "Honda City 2015", sales: 5, revenue: "৳4,000,000" },
-  ];
-
-  const recentOrders = [
-    {
-      id: 1,
-      orderNum: "ORD-001",
-      buyer: "Md. Rakib Hasan",
-      product: "Dell Inspiron 15",
-      status: "delivered",
-      amount: "৳35,000",
-    },
-    {
-      id: 2,
-      orderNum: "ORD-002",
-      buyer: "Fatima Begum",
-      product: "iPhone 12 Pro",
-      status: "shipped",
-      amount: "৳45,000",
-    },
-    {
-      id: 3,
-      orderNum: "ORD-003",
-      buyer: "Ahmed Khan",
-      product: "Wooden Dining Table",
-      status: "processing",
-      amount: "৳15,000",
-    },
-    {
-      id: 4,
-      orderNum: "ORD-004",
-      buyer: "Sophia Ahmed",
-      product: "Winter Jacket",
-      status: "accepted",
-      amount: "৳4,500",
-    },
-    {
-      id: 5,
-      orderNum: "ORD-005",
-      buyer: "Karim Hassan",
-      product: "Vintage Books",
-      status: "pending",
-      amount: "৳2,000",
-    },
-  ];
-
-  const recentProducts = [
-    {
-      id: 1,
-      name: "Samsung 55 inch TV",
-      price: "৳65,000",
-      status: "available",
-    },
-    {
-      id: 2,
-      name: "Vintage Leather Sofa",
-      price: "৳28,000",
-      status: "available",
-    },
-    { id: 3, name: "Mountain Bike", price: "৳18,000", status: "pending" },
-    { id: 4, name: "Microwave Oven", price: "৳5,500", status: "available" },
-    { id: 5, name: "Office Chair", price: "৳8,000", status: "available" },
   ];
 
   const getStatusColor = (status) => {
@@ -185,13 +105,13 @@ const DashboardHome = () => {
             <h2 className="text-xl font-bold text-gray-900">Monthly Sales</h2>
             <Link
               href="/dashboard/seller/analytics"
-              className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+              className="text-sm text-teal-600 hover:text-teal-700 font-medium cursor-pointer"
             >
               View All →
             </Link>
           </div>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
+            <LineChart data={data.chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
@@ -211,13 +131,13 @@ const DashboardHome = () => {
             <h2 className="text-xl font-bold text-gray-900">Recent Products</h2>
             <Link
               href="/dashboard/seller/my-products"
-              className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+              className="text-sm text-teal-600 hover:text-teal-700 font-medium cursor-pointer"
             >
               View All →
             </Link>
           </div>
           <div className="space-y-3">
-            {recentProducts.map((product) => (
+            {data.recentProducts.map((product) => (
               <div key={product.id} className="pb-3 border-b last:border-b-0">
                 <p className="text-sm font-medium text-gray-900 truncate">
                   {product.name}
@@ -247,7 +167,7 @@ const DashboardHome = () => {
           </h2>
           <Link
             href="/dashboard/seller/analytics"
-            className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+            className="text-sm text-teal-600 hover:text-teal-700 font-medium cursor-pointer"
           >
             View All →
           </Link>
@@ -268,7 +188,7 @@ const DashboardHome = () => {
               </tr>
             </thead>
             <tbody>
-              {topProducts.map((product) => (
+              {data.topProducts.map((product) => (
                 <tr key={product.id} className="border-b hover:bg-gray-50">
                   <td className="py-3 px-4 text-gray-900">{product.name}</td>
                   <td className="py-3 px-4 text-gray-700">{product.sales}</td>
@@ -287,7 +207,7 @@ const DashboardHome = () => {
           <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
           <Link
             href="/dashboard/seller/manage-orders"
-            className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+            className="text-sm text-teal-600 hover:text-teal-700 font-medium cursor-pointer"
           >
             View All →
           </Link>
@@ -314,7 +234,7 @@ const DashboardHome = () => {
               </tr>
             </thead>
             <tbody>
-              {recentOrders.map((order) => (
+              {data.recentOrders.map((order) => (
                 <tr key={order.id} className="border-b hover:bg-gray-50">
                   <td className="py-3 px-4 font-semibold text-gray-900">
                     {order.orderNum}

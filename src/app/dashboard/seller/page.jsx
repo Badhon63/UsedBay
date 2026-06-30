@@ -1,12 +1,21 @@
 import DashboardHome from "@/components/dashboard/seller/DashboardHome";
-import React from "react";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { fetchSellerDashboard } from "@/lib/fetch";
 
-const page = () => {
+const DashboardHomePage = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const sellerId = session?.user?.id;
+
+  const dashboardData = sellerId ? await fetchSellerDashboard(sellerId) : null;
+
   return (
     <div>
-      <DashboardHome />
+      <DashboardHome data={dashboardData} />
     </div>
   );
 };
 
-export default page;
+export default DashboardHomePage;

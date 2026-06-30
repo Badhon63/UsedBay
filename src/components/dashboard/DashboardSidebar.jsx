@@ -17,6 +17,7 @@ const DashboardSidebar = () => {
     { href: "/dashboard/seller/my-products", label: "My Products" },
     { href: "/dashboard/seller/manage-orders", label: "Manage Orders" },
     { href: "/dashboard/seller/analytics", label: "Sales Analytics" },
+    { href: "/dashboard/seller/profile", label: "Profile Management" },
   ];
 
   const buyerLinks = [
@@ -27,15 +28,31 @@ const DashboardSidebar = () => {
     { href: "/dashboard/buyer/profile", label: "Profile Management" },
   ];
 
-  const links = user?.role === "seller" ? sellerLinks : buyerLinks;
+  const adminLinks = [
+    { href: "/dashboard/admin", label: "Dashboard" },
+    { href: "/dashboard/admin/analytics", label: "Analytics" },
+    { href: "/dashboard/admin/manage-users", label: "Manage Users" },
+    { href: "/dashboard/admin/manage-orders", label: "Manage Orders" },
+    { href: "/dashboard/admin/manage-products", label: "Manage Products" },
+    { href: "/dashboard/admin/profile", label: "Profile Management" },
+  ];
 
+  const getLinks = () => {
+    if (user?.role === "admin") return adminLinks;
+    if (user?.role === "seller") return sellerLinks;
+    return buyerLinks;
+  };
+
+  const links = getLinks();
   const isActive = (href) => pathname === href;
+
+  if (!user) return null;
 
   return (
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden p-2 bg-teal-600 text-white "
+        className="md:hidden p-2 bg-teal-600 text-white cursor-pointer"
         aria-label="Toggle menu"
       >
         <svg
@@ -73,7 +90,7 @@ const DashboardSidebar = () => {
               key={link.href}
               href={link.href}
               onClick={() => setIsOpen(false)}
-              className={`block px-4 py-2 rounded text-sm font-medium transition-colors ${
+              className={`block px-4 py-2 rounded text-sm font-medium transition-colors cursor-pointer ${
                 isActive(link.href)
                   ? "bg-teal-100 text-teal-600 border-l-4 border-teal-600"
                   : "text-gray-700 hover:bg-gray-100"
@@ -87,7 +104,7 @@ const DashboardSidebar = () => {
 
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-20 top-16"
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-20 top-16 cursor-pointer"
           onClick={() => setIsOpen(false)}
         />
       )}

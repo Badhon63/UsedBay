@@ -1,10 +1,19 @@
 import Analytics from "@/components/dashboard/seller/Analytics";
-import React from "react";
+import { fetchSellerStats } from "@/lib/fetch";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
-const AnalyticsPage = () => {
+const AnalyticsPage = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const sellerId = session?.user?.id;
+
+  const stats = sellerId ? await fetchSellerStats(sellerId) : null;
+
   return (
     <div>
-      <Analytics />
+      <Analytics stats={stats} />
     </div>
   );
 };

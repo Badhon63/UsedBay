@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn, signUp } from "@/lib/auth-client";
+import { signIn, signUp, useSession } from "@/lib/auth-client";
 
 const GoogleIcon = () => (
   <svg
@@ -38,6 +38,16 @@ const GoogleIcon = () => (
 
 const Register = () => {
   const router = useRouter();
+
+  const { data: session, isPending } = useSession();
+  const user = session?.user;
+
+  useEffect(() => {
+    if (!isPending && user) {
+      router.push("/");
+    }
+  }, [user, router]);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",

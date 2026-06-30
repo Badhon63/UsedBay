@@ -84,12 +84,12 @@ export const fetchSellerOrders = async (sellerId) => {
   }
 };
 
-export const updateOrderStatus = async (orderId, orderStatus) => {
+export const updateOrderStatus = async (orderId, newStatus) => {
   try {
     const res = await fetch(`${getUrl()}/api/orders/${orderId}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderStatus }),
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ orderStatus: newStatus }),
     });
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     return res.json();
@@ -303,5 +303,18 @@ export const fetchPaymentHistory = async (userId) => {
   } catch (error) {
     console.error("fetchPaymentHistory error:", error.message);
     return [];
+  }
+};
+
+export const fetchSellerDashboard = async (sellerId) => {
+  try {
+    const res = await fetch(`${getUrl()}/api/seller-dashboard/${sellerId}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  } catch (error) {
+    console.error("fetchSellerDashboard error:", error.message);
+    return null;
   }
 };
